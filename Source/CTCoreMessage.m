@@ -346,12 +346,12 @@ char * etpan_encode_mime_header(char * phrase)
     NSInteger timezoneOffsetInSeconds = 3600*d->dt_zone/100;
     
     NSDate *date = [self senderDate];
-    
-    return [date addTimeInterval:timezoneOffsetInSeconds * -1];
+
+    return [date dateByAddingTimeInterval:timezoneOffsetInSeconds * -1];
 }
 
 - (NSDate*)sentDateLocalTimeZone {
-    return [[self sentDateGMT] addTimeInterval:[[NSTimeZone localTimeZone] secondsFromGMT]];
+    return [[self sentDateGMT] dateByAddingTimeInterval:[[NSTimeZone localTimeZone] secondsFromGMT]];
 }
 
 - (BOOL)isUnread {
@@ -498,6 +498,23 @@ char * etpan_encode_mime_header(char * phrase)
 		myFields->fld_reply_to = mailimf_reply_to_new(imf);
 }
 
+- (void)setOptionalHeader:(NSString*)name value:(NSString*)value {
+    if (!optionalHeaders) {
+        optionalHeaders = [[NSMutableArray alloc] init];
+    }
+
+    struct mailimf_optional_field *opt = mailimf_optional_field_new((char*)[name cStringUsingEncoding:NSASCIIStringEncoding],
+                                                                    (char*)[value cStringUsingEncoding:NSASCIIStringEncoding]);
+
+    struct mailimf_field *field = mailimf_field_new(MAILIMF_FIELD_OPTIONAL_FIELD,
+                                                    NULL, NULL, NULL, NULL,
+                                                    NULL, NULL, NULL, NULL,
+                                                    NULL, NULL, NULL, NULL,
+                                                    NULL, NULL, NULL, NULL,
+                                                    NULL, NULL, NULL, NULL,
+                                                    NULL, opt);
+    [optionalHeaders addObject:[NSValue valueWithPointer:field]];
+}
 
 - (NSString *)render {
 	CTMIME *msgPart = myParsedMIME;
@@ -518,6 +535,9 @@ char * etpan_encode_mime_header(char * phrase)
 		//TODO uh oh, when this get freed it frees stuff in the CTCoreMessage
 		//TODO Need to make sure that fields gets freed somewhere
 		fields = mailimf_fields_new_with_data(from, sender, replyTo, to, cc, bcc, inReplyTo, references, subject);
+        for (NSValue *v in optionalHeaders) {
+            clist_append(fields->fld_list, [v pointerValue]);
+        }
 		[(CTMIME_MessagePart *)msgPart setIMFFields:fields];
 	}
 	return [myParsedMIME render];

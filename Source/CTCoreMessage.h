@@ -47,6 +47,7 @@
 	struct mailmessage *myMessage;
 	struct mailimf_single_fields *myFields;
 	CTMIME *myParsedMIME;
+    NSMutableArray *optionalHeaders;
 	NSUInteger mySequenceNumber;
 }
 @property(retain) CTMIME *mime;
@@ -238,6 +239,13 @@
 	@param		addresses A NSSet containing CTCoreAddress's
 */
 - (void)setReplyTo:(NSSet *)addresses;
+
+/*!
+    @abstract   Sets an optional header field
+    @param      name The name of the header field
+    @param      value The value for the header field
+*/
+- (void)setOptionalHeader:(NSString*)name value:(NSString*)value;
 
 /*!
 	@abstract	Returns the message rendered as the appropriate MIME and IMF content. Use this only if you
