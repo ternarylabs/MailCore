@@ -171,6 +171,11 @@
 - (void)expunge;
 
 /*!
+ @abstract	Adds a message to a folder
+ */
+- (void)appendMessage: (CTCoreMessage *)msg;
+
+/*!
  @abstract	Copies a message to a folder
  */
 - (void)copyMessage: (NSString *)path forMessage:(CTCoreMessage *)msg;

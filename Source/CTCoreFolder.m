@@ -498,6 +498,14 @@
 		[NSString stringWithFormat:@"Error number: %d",err]);	
 }
 
+- (void)appendMessage:(CTCoreMessage *)msg {
+    [self connect];
+        
+    int err = mailsession_append_message([self folderSession], [[msg render] cStringUsingEncoding:NSUTF8StringEncoding], [[msg render] length]);
+    IfTrue_RaiseException(err != MAILIMAP_NO_ERROR, CTUnknownError, 
+                          [NSString stringWithFormat:@"Error number: %d",err]);
+}
+
 - (void)copyMessage: (NSString *)path forMessage:(CTCoreMessage *)msg {
 	[self connect];
 
